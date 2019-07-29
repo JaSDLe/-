@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PackageAnalysis>
+    <Package name="com.ziwu.service.impl" x="411" y="376">
+        <DependencyLink destination="com.ziwu.service"/>
+        <DependencyLink destination="com.ziwu.common"/>
+        <DependencyLink destination="com.ziwu.pojo"/>
+        <DependencyLink destination="com.ziwu.mapper"/>
+    </Package>
+    <Package name="com.ziwu.service" x="202" y="465">
+        <DependencyLink destination="com.ziwu.pojo"/>
+    </Package>
+    <Package name="com.ziwu.security" x="932" y="425">
+        <DependencyLink destination="com.ziwu.service"/>
+        <DependencyLink destination="com.ziwu.common"/>
+        <DependencyLink destination="com.ziwu.pojo"/>
+    </Package>
+    <Package name="com.ziwu.pojo" x="792" y="362"/>
+    <Package name="com.ziwu.mapper" x="619" y="554">
+        <DependencyLink destination="com.ziwu.pojo"/>
+    </Package>
+    <Package name="com.ziwu.controller.system" x="4" y="253">
+        <DependencyLink destination="com.ziwu.service"/>
+        <DependencyLink destination="com.ziwu.pojo"/>
+    </Package>
+    <Package name="com.ziwu.controller.adm" x="225" y="172">
+        <DependencyLink destination="com.ziwu.service"/>
+        <DependencyLink destination="com.ziwu.pojo"/>
+    </Package>
+    <Package name="com.ziwu.controller" x="466" y="101">
+        <DependencyLink destination="com.ziwu.service"/>
+        <DependencyLink destination="com.ziwu.common"/>
+        <DependencyLink destination="com.ziwu.pojo"/>
+    </Package>
+    <Package name="com.ziwu.common" x="728" y="213">
+        <DependencyLink destination="com.ziwu.pojo"/>
+    </Package>
+    <Package name="com.ziwu" x="34" y="18"/>
+</PackageAnalysis>

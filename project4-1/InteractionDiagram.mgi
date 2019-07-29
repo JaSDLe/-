@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClassDiagram>
+    <CommunicationClass name="com.ziwu.pojo.MenuMeta" x="1286" y="421"/>
+    <CommunicationClass name="com.ziwu.pojo.Menu" x="1292" y="350">
+        <Association destinationClassName="com.ziwu.pojo.Menu"
+            endpointName="children" kind="Simple"/>
+        <Association destinationClassName="com.ziwu.pojo.MenuMeta"
+            endpointName="meta" kind="Simple"/>
+        <Association destinationClassName="com.ziwu.pojo.Role"
+            endpointName="roles" kind="Simple"/>
+    </CommunicationClass>
+    <CommunicationClass name="com.ziwu.mapper.MenuMapper" x="561" y="792"/>
+    <CommunicationClass name="com.ziwu.security.CustomMetadataSource"
+        x="19" y="273">
+        <Association destinationClassName="com.ziwu.service.MenuService"
+            endpointName="menuService" kind="Simple"/>
+        <Communication destinationClassName="com.ziwu.service.MenuService"/>
+        <Communication destinationClassName="com.ziwu.pojo.Menu"/>
+        <Communication destinationClassName="com.ziwu.pojo.Role"/>
+    </CommunicationClass>
+    <CommunicationClass
+        name="com.ziwu.controller.system.SystemBasicController" x="595" y="212">
+        <Association destinationClassName="com.ziwu.service.MenuService"
+            endpointName="menuService" kind="Simple"/>
+        <Association
+            destinationClassName="com.ziwu.service.MenuRoleService"
+            endpointName="menuRoleService" kind="Simple"/>
+        <Association destinationClassName="com.ziwu.service.RoleService"
+            endpointName="roleService" kind="Simple"/>
+        <Communication destinationClassName="com.ziwu.service.MenuService"/>
+        <Communication destinationClassName="com.ziwu.service.MenuRoleService"/>
+        <Communication destinationClassName="com.ziwu.service.RoleService"/>
+        <Communication destinationClassName="com.ziwu.pojo.RespBean"/>
+    </CommunicationClass>
+    <CommunicationClass name="com.ziwu.service.UserService" x="615" y="609"/>
+    <CommunicationClass
+        name="com.ziwu.controller.adm.AdmBasicController" x="856" y="223">
+        <Association destinationClassName="com.ziwu.service.UserService"
+            endpointName="userService" kind="Simple"/>
+        <Communication destinationClassName="com.ziwu.service.UserService"/>
+        <Communication destinationClassName="com.ziwu.pojo.RespBean"/>
+    </CommunicationClass>
+    <CommunicationClass name="com.ziwu.common.UserUtils" x="1065" y="28"/>
+    <CommunicationClass name="com.ziwu.Project41Application" x="678" y="17"/>
+    <CommunicationClass
+        name="com.ziwu.security.CustomUserDetailsService" x="21" y="90">
+        <Association destinationClassName="com.ziwu.service.UserService"
+            endpointName="userService" kind="Simple"/>
+        <Communication destinationClassName="com.ziwu.service.UserService"/>
+    </CommunicationClass>
+    <CommunicationClass name="com.ziwu.pojo.RespBean" x="1282" y="113"/>
+    <CommunicationClass name="com.ziwu.service.impl.MenuRoleServiceImpl"
+        x="434" y="378">
+        <Extension destinationClassName="com.ziwu.service.MenuRoleService"/>
+        <Association
+            destinationClassName="com.ziwu.mapper.MenuRoleMapper"
+            endpointName="menuRoleMapper" kind="Simple"/>
+        <Communication destinationClassName="com.ziwu.mapper.MenuRoleMapper"/>
+    </CommunicationClass>
+    <CommunicationClass name="com.ziwu.mapper.UserMapper" x="1063" y="789"/>
+    <CommunicationClass name="com.ziwu.service.impl.UserServiceImpl"
+        x="865" y="375">
+        <Extension destinationClassName="com.ziwu.service.UserService"/>
+        <Association destinationClassName="com.ziwu.mapper.UserMapper"
+            endpointName="userMapper" kind="Simple"/>
+        <Communication destinationClassName="com.ziwu.pojo.User"/>
+        <Communication destinationClassName="com.ziwu.mapper.UserMapper"/>
+    </CommunicationClass>
+    <CommunicationClass name="com.ziwu.mapper.MenuRoleMapper" x="722" y="791"/>
+    <CommunicationClass name="com.ziwu.pojo.User" x="1296" y="199">
+        <Association destinationClassName="com.ziwu.pojo.Role"
+            endpointName="roles" kind="Simple"/>
+    </CommunicationClass>
+    <CommunicationClass name="com.ziwu.service.MenuRoleService" x="256" y="606"/>
+    <CommunicationClass name="com.ziwu.security.WebSecurityConfig"
+        x="25" y="213">
+        <Association
+            destinationClassName="com.ziwu.security.CustomMetadataSource"
+            endpointName="metadataSource" kind="Simple"/>
+        <Association
+            destinationClassName="com.ziwu.security.UrlAccessDecisionManager"
+            endpointName="urlAccessDecisionManager" kind="Simple"/>
+        <Association
+            destinationClassName="com.ziwu.security.AuthenticationAccessDeniedHandler"
+            endpointName="deniedHandler" kind="Simple"/>
+        <Association
+            destinationClassName="com.ziwu.security.CustomUserDetailsService"
+            endpointName="userDetailsService" kind="Simple"/>
+    </CommunicationClass>
+    <CommunicationClass name="com.ziwu.service.impl.RoleServiceImpl"
+        x="668" y="374">
+        <Extension destinationClassName="com.ziwu.service.RoleService"/>
+        <Association destinationClassName="com.ziwu.mapper.RoleMapper"
+            endpointName="roleMapper" kind="Simple"/>
+        <Communication destinationClassName="com.ziwu.mapper.RoleMapper"/>
+    </CommunicationClass>
+    <CommunicationClass
+        name="com.ziwu.security.AuthenticationAccessDeniedHandler"
+        x="21" y="28">
+        <Communication destinationClassName="com.ziwu.pojo.RespBean"/>
+    </CommunicationClass>
+    <CommunicationClass name="com.ziwu.controller.LoginController"
+        x="827" y="139">
+        <Communication destinationClassName="com.ziwu.pojo.RespBean"/>
+    </CommunicationClass>
+    <CommunicationClass name="com.ziwu.mapper.RoleMapper" x="905" y="787"/>
+    <CommunicationClass name="com.ziwu.service.impl.MenuServiceImpl"
+        x="258" y="376">
+        <Extension destinationClassName="com.ziwu.service.MenuService"/>
+        <Association destinationClassName="com.ziwu.mapper.MenuMapper"
+            endpointName="menuMapper" kind="Simple"/>
+        <Communication destinationClassName="com.ziwu.mapper.MenuMapper"/>
+    </CommunicationClass>
+    <CommunicationClass name="com.ziwu.service.RoleService" x="450" y="609"/>
+    <CommunicationClass name="com.ziwu.controller.AdminController"
+        x="425" y="141"/>
+    <CommunicationClass name="com.ziwu.service.MenuService" x="78" y="608"/>
+    <CommunicationClass name="com.ziwu.controller.ConfigController"
+        x="370" y="213">
+        <Association destinationClassName="com.ziwu.service.MenuService"
+            endpointName="menuService" kind="Simple"/>
+        <Communication destinationClassName="com.ziwu.service.MenuService"/>
+        <Communication destinationClassName="com.ziwu.common.UserUtils"/>
+    </CommunicationClass>
+    <CommunicationClass name="com.ziwu.pojo.Role" x="1295" y="272"/>
+    <CommunicationClass
+        name="com.ziwu.security.UrlAccessDecisionManager" x="26" y="153"/>
+</ClassDiagram>

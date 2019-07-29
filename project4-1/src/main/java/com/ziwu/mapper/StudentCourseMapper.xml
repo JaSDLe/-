@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ziwu.mapper.StudentCourseMapper">
+
+	<resultMap id="BaseResultMap"
+		type="com.ziwu.pojo.StudentCourse">
+
+		<id column="id" property="id" />
+		<result column="user_id" property="user_id" />
+		<result column="teacher_course_id" property="teacher_course_id" />
+
+		<association property="student"
+			javaType="com.ziwu.pojo.User">
+
+			<id property="id" column="s_id" />
+			<result property="name" column="s_name" />
+			<result property="username" column="s_username" />
+
+		</association>
+
+		<association property="teacherCourse"
+			javaType="com.ziwu.pojo.TeacherCourse">
+
+			<id property="id" column="tc_id" />
+			<result property="course_id" column="tc_course_id" />
+			<result property="user_id" column="tc_user_id" />
+
+			<association property="course"
+				javaType="com.ziwu.pojo.Course">
+
+				<id property="id" column="c_id" />
+				<result property="course_id" column="c_course_id" />
+				<result property="name" column="c_name" />
+				<result property="isExam" column="c_isExam" />
+				<result property="proportion" column="c_proportion" />
+				<result property="introduction" column="c_introduction" />
+
+			</association>
+
+			<association property="teacher"
+				javaType="com.ziwu.pojo.User">
+
+				<id property="id" column="t_id" />
+				<result property="name" column="t_name" />
+				<result property="username" column="t_username" />
+
+			</association>
+
+		</association>
+	</resultMap>
+
+	<!-- *********************************** -->
+
+	<!-- *********************************** -->
+
+
+	<!-- 根据两个id获取数目 -->
+	<select id="getCountById" resultType="Long">
+		SELECT COUNT(*)
+		FROM student_course
+		WHERE 
+		student_course.user_id = #{user_id} AND 
+		student_course.teacher_course_id = #{teacher_course_id}
+	</select>
+
+	<!-- 分配学生课程 -->
+	<insert id="addStudentCourse">
+		INSERT INTO student_course(user_id,teacher_course_id) VALUES
+		<foreach collection="user_ids" separator="," item="user_id">
+			<foreach collection="teacher_course_ids" separator="," item="teacher_course_id">
+				(#{user_id},#{teacher_course_id})
+			</foreach>
+		</foreach>
+	</insert>
+
+	<!-- 删除分配学生课程 -->
+	<delete id="deleteStudentCourse"
+		parameterType="java.lang.Integer">
+		delete from student_course where id in
+		<foreach collection="ids" separator="," open="(" close=")"
+			item="id">
+			#{id}
+		</foreach>
+	</delete>
+
+	<!-- 根据学生id查找课程 -->
+	<select id="getStudentCourseById" resultMap="BaseResultMap">
+		SELECT
+		student_course.id,
+		student_course.teacher_course_id,
+		ut.`name` AS `t_name`,
+		course.id AS c_id,
+		course.`course_id` AS c_course_id,
+		course.`name` AS c_name,
+		course.`isExam` AS c_isExam,
+		course.`proportion` AS c_proportion,
+		course.`introduction` AS c_introduction
+		from
+		(
+		student_course
+		left join `user` us on
+		(student_course.user_id = us.id)
+		LEFT JOIN
+		(
+		teacher_course
+		left join
+		course on (teacher_course.course_id = course.id)
+		LEFT JOIN `user` ut on
+		(teacher_course.user_id = ut.id)
+		)
+		on (student_course.teacher_course_id
+		= teacher_course.id)
+		)
+		WHERE us.id = #{id}
+	</select>
+
+	<!-- 查找所有选课的学生 -->
+	<select id="getStudentByTeacherCourseId"
+		resultMap="BaseResultMap">
+		SELECT
+			student_course.id,
+			`user`.username AS `s_username`,
+			`user`.`name` AS `s_name`
+		FROM
+		student_course
+		LEFT JOIN teacher_course ON teacher_course.id = student_course.teacher_course_id
+		LEFT JOIN `user` ON student_course.user_id = `user`.id
+		WHERE teacher_course.id = #{id}
+		ORDER BY `user`.username
+	</select>
+	
+	<!-- *********************************** -->
+
+	<!-- (所有)分页查找分配学生课程 -->
+	<select id="getStudentCourseByPage" resultMap="BaseResultMap">
+		select
+		student_course.*,
+
+		us.id AS `s_id`,
+		us.username AS `s_username`,
+		us.`name` AS `s_name`,
+
+		teacher_course.id AS `tc_id`,
+		teacher_course.user_id AS `tc_user_id`,
+		teacher_course.course_id AS `tc_course_id`,
+
+		ut.id AS `t_id`,
+		ut.username AS `t_username`,
+		ut.`name` AS `t_name`,
+
+		course.id AS `c_id`,
+		course.course_id AS `c_course_id`,
+		course.`name` AS
+		`c_name`
+		from
+		(
+		student_course
+		left join `user` us on
+		(student_course.user_id = us.id)
+		LEFT JOIN
+		(
+		teacher_course
+		left join
+		course on (teacher_course.course_id = course.id)
+		LEFT JOIN `user` ut on
+		(teacher_course.user_id = ut.id)
+		)
+		on (student_course.teacher_course_id
+		= teacher_course.id)
+		)
+		where
+		course.`name` like
+		concat('%',#{keywords},'%')
+		or
+		us.`name` like
+		concat('%',#{keywords},'%')
+		or
+		ut.`name` like
+		concat('%',#{keywords},'%')
+		<if test="start!=null and size!=null">
+			order by student_course.id limit #{start},#{size}
+		</if>
+	</select>
+
+	<!-- (所有)根据关键字获取数目 -->
+	<select id="getCountByKeywords" resultType="Long">
+		SELECT count(*)
+		from
+		(
+		student_course
+		left join `user` us on (student_course.user_id = us.id)
+		LEFT JOIN
+		(
+		teacher_course
+		left join course on (teacher_course.course_id
+		= course.id)
+		LEFT JOIN `user` ut on (teacher_course.user_id = ut.id)
+		)
+		on (student_course.teacher_course_id = teacher_course.id)
+		)
+		where
+		course.`name` like concat('%',#{keywords},'%')
+		or
+		us.`name` like
+		concat('%',#{keywords},'%')
+		or
+		ut.`name` like
+		concat('%',#{keywords},'%')
+	</select>
+	<!-- 更新分配学生课程 <update id="updateStudentCourse" parameterType="studentcourse"> 
+		update user <set> <if test="user_id != null"> user_id = #{user_id}, </if> 
+		<if test="teacher_course_id != null"> teacher_course_id = #{teacher_course_id}, 
+		</if> </set> where id = #{id} </update> -->
+	<!-- 根据User_id查找分配学生课程 <select id="findStudentCourseByUser_IdAndTeacher_Course_Id" 
+		parameterType="java.lang.Integer"> select * from student_course where user_id 
+		= #{user_id} and teacher_course_id = #{eacher_course_id} </select> -->
+</mapper>

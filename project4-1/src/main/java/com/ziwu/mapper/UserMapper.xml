@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ziwu.mapper.UserMapper">
+
+	<resultMap id="BaseResultMap" type="com.ziwu.pojo.User">
+		<id column="id" property="id" />
+		<result column="username" property="username" />
+		<result column="password" property="password" />
+		<result column="name" property="name" />
+	</resultMap>
+
+	<resultMap id="lazyLoadRoles" type="com.ziwu.pojo.User"
+		extends="BaseResultMap">
+		<collection property="roles" ofType="com.ziwu.pojo.Role"
+			select="com.ziwu.mapper.UserMapper.getRolesByUserId" column="id"></collection>
+	</resultMap>
+
+	<resultMap id="eagerLoadRoles" type="com.ziwu.pojo.User"
+		extends="BaseResultMap">
+		<collection property="roles" ofType="com.ziwu.pojo.Role">
+			<id property="id" column="role_id" />
+			<result property="name" column="role_name" />
+			<result property="nameZh" column="role_nameZh" />
+		</collection>
+	</resultMap>
+
+	<!-- *********************************** -->
+
+	<!-- 根据username查找用户 -->
+	<select id="findUserByUsername" parameterType="java.lang.String"
+		resultMap="lazyLoadRoles">
+		select * from user where username = #{username}
+	</select>
+
+	<!-- 根据id查询用户信息 -->
+	<select id="getUserById" parameterType="java.lang.Integer"
+		resultMap="eagerLoadRoles">
+		select u.*,`r`.`id` AS `role_id`,`r`.`name` AS `role_name`,`r`.`nameZh` AS
+		`role_nameZh`
+		from ((`user` `u` left join `user_role` `u_r` on ((`u`.`id` =
+		`u_r`.`user_id`))) left join `role` `r` on ((`u_r`.`role_id` =
+		`r`.`id`)))
+		where u.`id`=#{id}
+	</select>
+
+	<!-- 增加用户 -->
+	<insert id="insertUser" parameterType="user">
+		insert into user(username,password,name)
+		values(#{username},#{password},#{name})
+	</insert>
+
+	<!-- 删除用户 -->
+	<delete id="deleteUser" parameterType="java.lang.Integer">
+		delete from user where id in
+		<foreach collection="ids" separator="," open="(" close=")"
+			item="id">
+			#{id}
+		</foreach>
+	</delete>
+
+	<!-- 更新用户信息 -->
+	<update id="updateUser" parameterType="user">
+		update user
+		<set>
+			<if test="username != null">
+				username = #{username},
+			</if>
+			<if test="password != null">
+				password = #{password},
+			</if>
+			<if test="name != null">
+				name = #{name},
+			</if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<!-- *********************************** -->
+
+	<!-- (所有)分页查找用户 -->
+	<select id="getUserByPage" resultMap="eagerLoadRoles">
+		select
+		u.*,
+		`r`.`id` AS `role_id`,
+		`r`.`name` AS `role_name`,
+		`r`.`nameZh` AS `role_nameZh`
+		from (
+		(`user` `u` left join `user_role` `u_r` on ( (`u`.`id` = `u_r`.`user_id`) ) )
+		left join `role` `r` on ( (`u_r`.`role_id` = `r`.`id`) )
+		)
+		where
+		u.`name` like concat('%',#{keywords},'%')
+		<if test="start!=null and size!=null">
+			order by u.id limit #{start},#{size}
+		</if>
+	</select>
+
+	<!-- (所有)根据关键字获取数目 -->
+	<select id="getCountByKeywords" resultType="Long">
+		SELECT count(*) 
+		FROM user u 
+		WHERE 
+		u.name LIKE concat('%',#{keywords},'%')
+	</select>
+
+	<!-- (所有)分页查找用户 -->
+	<select id="getUserByOffPage" resultMap="eagerLoadRoles">
+		select
+		u.*,
+		`r`.`id` AS `role_id`,
+		`r`.`name` AS `role_name`,
+		`r`.`nameZh` AS `role_nameZh`
+		from (
+		(`user` `u` left join `user_role` `u_r` on ( (`u`.`id` = `u_r`.`user_id`) ) )
+		left join `role` `r` on ( (`u_r`.`role_id` = `r`.`id`) )
+		)
+		where
+		(r.id = 3 or r.id = 4) and
+		u.`name` like concat('%',#{keywords},'%')
+		<if test="start!=null and size!=null">
+			order by u.id limit #{start},#{size}
+		</if>
+	</select>
+	
+	<!-- (学生老师)根据关键字获取数目 -->
+	<select id="getCountByOffKeywords" resultType="Long">
+		SELECT count(*)
+		FROM
+		( (`user` `u` left join `user_role` `u_r` on ( (`u`.`id` = `u_r`.`user_id`) ) )
+		left join `role` `r` on ( (`u_r`.`role_id` = `r`.`id`) ) )
+		WHERE
+		(r.id = 3 or r.id = 4) and
+		u.`name` LIKE concat('%',#{keywords},'%')
+	</select>
+
+	<!-- *********************************** -->
+
+	<!-- 根据用户id查询角色 -->
+	<select id="getRolesByUserId" parameterType="java.lang.Integer"
+		resultType="com.ziwu.pojo.Role">
+		SELECT r.* FROM user_role ur,role r where ur.role_id=r.id AND
+		ur.user_id=#{id}
+	</select>
+
+	<!-- 为用户增加角色 parameterType="java.lang.Integer" -->
+	<insert id="addRolesForUser">
+		INSERT INTO user_role(user_id,role_id) VALUES
+		<foreach collection="role_ids" separator="," item="role_id">
+			(#{user_id},#{role_id})
+		</foreach>
+	</insert>
+
+	<!-- 根据用户id删除角色 -->
+	<delete id="deleteRoleByUserId"
+		parameterType="java.lang.Integer">
+		DELETE FROM user_role where user_id=#{user_id}
+	</delete>
+
+	<!-- *********************************** -->
+	
+	<!-- 查找所有老师 -->
+	<select id="getAllTeacher" resultType="com.ziwu.pojo.User"> 
+		select 
+		`user`.id,`user`.username,`user`.`name` 
+		from 
+		`user` 
+		LEFT JOIN user_role ON (`user`.id = user_role.user_id)
+		LEFT JOIN role ON (user_role.role_id = role.id)
+		WHERE
+		role.`name` = 'ROLE_teacher'
+	</select>
+	
+	<!-- 查找所有学生 -->
+	<select id="getAllStudent" resultType="com.ziwu.pojo.User"> 
+		select 
+		`user`.id,`user`.username,`user`.`name` 
+		from 
+		`user` 
+		LEFT JOIN user_role ON (`user`.id = user_role.user_id)
+		LEFT JOIN role ON (user_role.role_id = role.id)
+		WHERE
+		role.`name` = 'ROLE_student'
+	</select>
+	
+	<!-- *********************************** -->
+
+	<select id="getUsersByKeywords" resultMap="eagerLoadRoles">
+		select
+		u.*,
+		`r`.`id` AS `role_id`,
+		`r`.`name` AS `role_name`,
+		`r`.`nameZh` AS `role_nameZh`
+		from (
+		(`user` `u` left join `user_role` `u_r` on ( (`u`.`id` = `u_r`.`user_id`) ) )
+		left join `role` `r` on ( (`u_r`.`role_id` = `r`.`id`) )
+		)
+		<if test="keywords!='all' and keywords!=''">
+			where u.`name` like concat('%',#{keywords},'%')
+		</if>
+	</select>
+
+	<select id="getAllUser" resultMap="eagerLoadRoles">
+		select u.*,`r`.`id` AS `role_id`,`r`.`name` AS `role_name`,`r`.`nameZh` AS
+		`role_nameZh`
+		from ((`user` `u` left join `user_role` `u_r` on ((`u`.`id` =
+		`u_r`.`user_id`))) left join `role` `r` on ((`u_r`.`role_id` =
+		`r`.`id`)))
+	</select>
+
+	<!-- <select id="getAllUser" resultType="com.ziwu.pojo.User"> select * from 
+		user <if test="currentId!=null"> WHERE id !=#{currentId} </if> </select> -->
+</mapper>

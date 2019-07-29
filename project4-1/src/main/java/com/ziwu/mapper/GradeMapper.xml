@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ziwu.mapper.GradeMapper">
+
+	<resultMap id="BaseResultMap"
+		type="com.ziwu.pojo.RegularGrade">
+		<id column="id" property="id" />
+		<result column="user_course_id" property="user_course_id" />
+		<result column="number" property="number" />
+		<result column="grade" property="grade" />
+		<result column="type_id" property="type_id" />
+		<association property="student"
+			javaType="com.ziwu.pojo.User">
+			<id property="id" column="u_id" />
+			<result property="name" column="u_name" />
+			<result property="username" column="u_username" />
+		</association>
+		<association property="gradeType"
+			javaType="com.ziwu.pojo.GradeType">
+			<id property="id" column="g_id" />
+			<result property="name" column="g_name" />
+		</association>
+	</resultMap>
+	
+	<resultMap id="GradeWithUser"
+		type="com.ziwu.pojo.Grade">
+		<id column="id" property="id" />
+		<result column="user_course_id" property="user_course_id" />
+		<result column="regular_grade" property="regular_grade" />
+		<result column="final_grade" property="final_grade" />
+		<result column="total_grade" property="total_grade" />
+		<association property="student"
+			javaType="com.ziwu.pojo.User">
+			<id property="id" column="u_id" />
+			<result property="name" column="u_name" />
+			<result property="username" column="u_username" />
+		</association>
+	</resultMap>
+	
+	<!-- 获得所有平时成绩类型 -->
+	<select id="getAllGradeType" resultType="com.ziwu.pojo.GradeType">
+		SELECT * FROM grade_type
+	</select>
+	
+	<!-- 增加平时成绩分配 -->
+	<insert id="addAllocation">
+		INSERT INTO regular_grade_allocation(user_course_id,type_id,allocation) 
+		VALUES
+		(#{teacher_course_id},#{type_id},#{allocation})
+	</insert>
+	
+	<!-- 根据教师课程id删除平时成绩分配 -->
+	<delete id="deleteAllocationByTeacherCourseId"
+		parameterType="java.lang.Integer">
+		DELETE FROM regular_grade_allocation 
+		where regular_grade_allocation.user_course_id = #{teacher_course_id}
+	</delete>
+	
+	<!-- 根据教师课程id获得平时成绩分配 -->
+	<select id="getAllocationByTeacherCourseId" resultType="com.ziwu.pojo.GradeAllocation">
+		SELECT * 
+		FROM regular_grade_allocation
+		WHERE regular_grade_allocation.user_course_id = #{teacher_course_id}
+	</select>
+	
+	<!-- 获得平时成绩数目 -->
+	<select id="findGrade" resultType="int">
+		SELECT COUNT(*) 
+		FROM regular_grade
+		WHERE 
+		regular_grade.user_course_id = #{user_course_id} AND 
+		regular_grade.number = #{number} AND 
+		regular_grade.type_id = #{type_id}
+	</select>
+	
+	<!-- 增加平时成绩 -->
+	<insert id="addRegularGrade">
+		INSERT INTO regular_grade(user_course_id,number,grade,type_id) 
+		VALUES
+		(#{user_course_id},#{number},#{grade},#{type_id})
+	</insert>
+	
+	<!-- 根据教师课程id获得平时成绩 -->
+	<select id="getRegularGrade" resultMap="BaseResultMap">
+		SELECT 
+		regular_grade.id,
+		regular_grade.number,
+		regular_grade.grade,
+		regular_grade.type_id,
+		`user`.username AS u_username,
+		`user`.`name` AS u_name,
+		grade_type.`name` AS g_name
+		FROM 
+		regular_grade
+		LEFT JOIN student_course ON regular_grade.user_course_id = student_course.id
+		LEFT JOIN `user` ON student_course.user_id = `user`.id
+		LEFT JOIN grade_type ON regular_grade.type_id = grade_type.id
+		WHERE student_course.teacher_course_id = #{teacher_course_id}
+		ORDER BY `user`.username,grade_type.id,regular_grade.number
+	</select>
+	
+	<!-- 删除 -->
+	<delete id="deleteGrade" parameterType="java.lang.Integer">
+		delete from regular_grade where id in
+		<foreach collection="ids" separator="," open="(" close=")"
+			item="id">
+			#{id}
+		</foreach>
+	</delete>
+
+	<!-- 更新 -->
+	<update id="updateGrade" parameterType="regularGrade">
+		update regular_grade
+		<set>
+			<if test="number != null">
+				number = #{number},
+			</if>
+			<if test="grade != null">
+				grade = #{grade},
+			</if>
+			<if test="type_id != null">
+				type_id = #{type_id},
+			</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<!-- 根据学生课程id获得平时成绩 -->
+	<select id="getRegularGradeById"
+		resultMap="BaseResultMap">
+		    select
+		    regular_grade.id,
+			regular_grade.number,
+			regular_grade.grade,
+			regular_grade.type_id,
+			grade_type.`name` AS g_name
+			FROM
+			regular_grade
+			LEFT JOIN grade_type ON grade_type.id = regular_grade.type_id
+			WHERE regular_grade.user_course_id=#{user_course_id}
+		    ORDER BY grade_type.id,regular_grade.number
+	</select>
+	
+	<!-- 查找所有成绩 -->
+	<select id="getFianlGradeById" resultType="com.ziwu.pojo.Grade">
+		SELECT
+			grade.regular_grade,
+			grade.final_grade,
+			grade.total_grade,
+			grade.user_course_id
+		FROM
+			grade
+		WHERE
+			grade.user_course_id = #{user_course_id};
+	</select>
+	
+	<!-- 获得期末成绩数目 -->
+	<select id="findFinalGrade" resultType="int">
+		SELECT COUNT(*) 
+		FROM grade
+		WHERE 
+		grade.user_course_id = #{user_course_id}
+	</select>
+	
+	<!-- 增加期末成绩 -->
+	<insert id="addFinalGrade">
+		INSERT INTO grade(user_course_id,final_grade) 
+		VALUES
+		(#{user_course_id},#{final_grade})
+	</insert>
+	
+	<!-- 根据教师课程id查找所有成绩 -->
+	<select id="getTotalGradeByTeacherCourseId" resultMap="GradeWithUser">
+		SELECT
+			`user`.username AS u_username,
+			`user`.`name` AS u_name,
+			grade.user_course_id,
+			grade.regular_grade,
+			grade.final_grade,
+			grade.total_grade
+		FROM
+			grade
+			LEFT JOIN student_course ON grade.user_course_id = student_course.id
+			LEFT JOIN teacher_course ON student_course.teacher_course_id = teacher_course.id
+			LEFT JOIN `user` ON student_course.user_id = `user`.id
+		WHERE
+			teacher_course.id = #{teacher_course_id}
+		ORDER BY `user`.username
+	</select>
+	
+	<!-- 更新总成绩 -->
+	<update id="updateTotalGrade" parameterType="grade">
+		update grade
+		<set>
+			<if test="regular_grade != null">
+				regular_grade = #{regular_grade},
+			</if>
+			<if test="final_grade != null">
+				final_grade = #{final_grade},
+			</if>
+			<if test="total_grade != null">
+				total_grade = #{total_grade},
+			</if>
+		</set>
+		where user_course_id = #{user_course_id}
+	</update>
+	
+	<!-- 根据学生课程id、成绩类型和序号获得平均平时成绩 -->
+	<select id="getAverageGrade" resultType="float">
+		    SELECT
+			AVG(regular_grade.grade)
+			FROM
+			regular_grade
+			LEFT JOIN grade_type ON grade_type.id = regular_grade.type_id
+			LEFT JOIN student_course ON student_course.id = regular_grade.user_course_id
+			WHERE student_course.teacher_course_id = ( SELECT student_course.teacher_course_id
+													   FROM student_course
+													   WHERE student_course.id = #{user_course_id}) 
+			AND regular_grade.number = #{number}
+			AND regular_grade.type_id = #{type_id}
+	</select>
+</mapper>

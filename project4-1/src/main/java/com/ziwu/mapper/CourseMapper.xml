@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ziwu.mapper.CourseMapper">
+	<!-- 根据name查找课程 -->
+	<!-- <select id="findCourseByName" parameterType="java.lang.String"
+		resultType="com.ziwu.pojo.Course">
+		select * from course where name = #{name}
+	</select> -->
+
+	<!-- 根据课程id查询课程信息 -->
+	<select id="getCourseByCourse_Id" parameterType="java.lang.String" resultType="com.ziwu.pojo.Course">
+		select * from course where course_id = #{course_id}
+	</select>
+	
+	<!-- 根据id查询课程信息 -->
+	<!-- <select id="getCourseById" parameterType="java.lang.Interger">
+		select * from course c where c.course_id LIKE
+		concat('%',#{course_id},'%')
+	</select> -->
+
+	<!-- 添加课程 -->
+	<insert id="insertCourse" parameterType="course">
+		insert into
+		course(course_id,name,isExam,proportion,introduction)
+		values(#{course_id},#{name},#{isExam},#{proportion},#{introduction})
+	</insert>
+
+	<!-- 删除课程 -->
+	<delete id="deleteCourse" parameterType="java.lang.Integer">
+		delete from course where id in
+		<foreach collection="ids" separator="," open="(" close=")"
+			item="id">
+			#{id}
+		</foreach>
+	</delete>
+
+	<!-- 更新课程信息 -->
+	<update id="updateCourse" parameterType="course">
+		update course
+		<set>
+			<if test="course_id != null">
+				course_id = #{course_id},
+			</if>
+			<if test="name != null">
+				name = #{name},
+			</if>
+			<if test="isExam != null">
+				isExam = #{isExam},
+			</if>
+			<if test="proportion != null">
+				proportion = #{proportion},
+			</if>
+			<if test="introduction != null">
+				introduction = #{introduction},
+			</if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<!-- ****************************** -->
+
+	<!-- 分页查找课程 -->
+	<select id="getCourseByPage" resultType="com.ziwu.pojo.Course">
+		select * from course c WHERE c.name LIKE concat('%',#{keywords},'%')
+		<if test="start!=null and size!=null">
+			order by c.id limit #{start},#{size}
+		</if>
+	</select>
+
+	<!-- 根据关键字获取数目 -->
+	<select id="getCountByKeywords" resultType="Long">
+		SELECT count(*) FROM
+		course c WHERE c.name LIKE concat('%',#{keywords},'%')
+	</select>
+	
+	<!-- ****************************** -->
+
+	<!-- 查找所有课程 -->
+	<select id="getAllCourse" resultType="com.ziwu.pojo.Course"> 
+		select * from course
+	</select>
+</mapper>

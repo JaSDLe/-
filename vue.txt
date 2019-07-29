@@ -1,0 +1,33 @@
+认证，授权，前后端分离，restful，登录提示，session，cookie，菜单，
+
+管理员-》创建教务处
+教务处-》创建老师、学生、课程
+
+管理员登录，显示所有用户信息，能增删改
+
+d:
+cd D:\WorkSpace\eclipse-jee-Workspace\demo-vue
+vue init webpack new-vue
+cd D:\WorkSpace\eclipse-jee-Workspace\demo-vue\new-vue
+npm install
+npm run dev
+
+npm run build
+
+
+|-- src                              // 源码目录
+|   |-- components                   // vue公共组件
+|   |-- router                       // 路由
+|   |-- static                       // 静态资源文件
+|   |-- store                        // vuex的状态管理
+|   |-- utils                        // 
+|   |-- App.vue                      // 页面入口文件
+|   |-- main.js                      // 程序入口文件，加载各种公共组件
+
+https://element.eleme.cn/#/zh-CN/
+
+vue:8080(axios转发)
+springboot:8082
+
+
+提交请求时表单验证？
