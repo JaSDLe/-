@@ -15,6 +15,6 @@
 
 **端口**
 
-vue:8080(axios转发)
+vue:8080(跨域：\new-vue\config\index.js)
 
 springboot:8082
